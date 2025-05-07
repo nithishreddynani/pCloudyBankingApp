@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Profile Section -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome Back"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="John Doe"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Current Balance"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/balanceAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$1000.0"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Quick Actions Grid -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quick Actions"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:columnCount="3">
+
+                    <!-- Transfer Money -->
+                    <LinearLayout
+                        android:id="@+id/transferMoney"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_transfer" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Transfer"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Pay Bills -->
+                    <LinearLayout
+                        android:id="@+id/payBills"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_bill" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Pay Bills"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Mobile Recharge -->
+                    <LinearLayout
+                        android:id="@+id/mobileRecharge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_mobile" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Recharge"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- UPI -->
+                    <LinearLayout
+                        android:id="@+id/upiPayment"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_qr" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="UPI"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Cards -->
+                    <LinearLayout
+                        android:id="@+id/cards"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_card" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Cards"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- More -->
+                    <LinearLayout
+                        android:id="@+id/more"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_more" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="More"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </GridLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Recent Transactions -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recent Transactions"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/transactionsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Logout Button -->
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Logout" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

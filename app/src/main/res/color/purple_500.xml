@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- State when the view is pressed -->
+    <item android:color="#FF0000" android:state_pressed="true" />
+
+    <!-- State when the view is focused -->
+    <item android:color="#00FF00" android:state_focused="true" />
+
+    <!-- State when the view is enabled -->
+    <item android:color="#0000FF" android:state_enabled="true" />
+
+    <!-- Default state -->
+    <item android:color="#808080" />
+</selector>

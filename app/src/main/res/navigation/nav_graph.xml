@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.pcloudy.bankingg.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_login_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true">
+            <argument
+                android:name="username"
+                app:argType="string"
+                android:defaultValue=""/>
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.pcloudy.bankingg.DashboardFragment"
+        android:label="Dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
+        <action
+            android:id="@+id/action_dashboard_to_transfer"
+            app:destination="@id/transferFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_billPayment"
+            app:destination="@id/billPaymentFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_cards"
+            app:destination="@id/cardsFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_recharge"
+            app:destination="@id/rechargeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/atmFragment"
+        android:name="com.pcloudy.bankingg.AtmFragment"
+        android:label="ATM" />
+
+    <fragment
+        android:id="@+id/networkFragment"
+        android:name="com.pcloudy.bankingg.NetworkFragment"
+        android:label="Network" />
+
+    <fragment
+        android:id="@+id/transferFragment"
+        android:name="com.pcloudy.bankingg.TransferFragment"
+        android:label="Transfer Money" />
+
+    <fragment
+        android:id="@+id/billPaymentFragment"
+        android:name="com.pcloudy.bankingg.BillPaymentFragment"
+        android:label="Bill Payment Fragment"/>
+
+    <fragment
+        android:id="@+id/cardsFragment"
+        android:name="com.pcloudy.bankingg.CardsFragment"
+        android:label="My Cards">
+        <action
+            android:id="@+id/action_cards_to_addCard"
+            app:destination="@id/addCardFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/addCardFragment"
+        android:name="com.pcloudy.bankingg.CardsFragment"
+        android:label="Add New Card"/>
+
+    <fragment
+        android:id="@+id/rechargeFragment"
+        android:name="com.pcloudy.bankingg.RechargeFragment"
+        android:label="Mobile Recharge">
+        <action
+            android:id="@+id/action_recharge_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/dashboardFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/upiFragment"
+        android:name="com.pcloudy.bankingg.UPIFragment"
+        android:label="UPI Payment"/>
+
+    <action
+        android:id="@+id/action_dashboard_to_upi"
+        app:destination="@id/upiFragment"/>
+
+    <fragment
+        android:id="@+id/anrFragment"
+        android:name="com.pcloudy.bankingg.ANRFragment"
+        android:label="ANR Test"/>
+
+    <action
+        android:id="@+id/action_anr"
+        app:destination="@id/anrFragment"/>
+</navigation>
