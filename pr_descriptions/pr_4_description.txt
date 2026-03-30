@@ -1,0 +1,11 @@
+PR #4 - transfer money, recharge and paybills
+Date: Mon Mar 30 09:54:22 UTC 2026
+========================================
+
+Walkthroughs - Description
+
+• Add three new API endpoints for transfer, bill payment, and mobile recharge
+• Implement transfer, payBill, and mobileRecharge methods in MainViewModel
+• Refactor TransferFragment and BillPaymentFragment to use API calls
+• Refactor RechargeFragment to use MainViewModel instead of separate RechargeViewModel
+• Re-enable dashboard quick action buttons for transfer, bills, and recharge
