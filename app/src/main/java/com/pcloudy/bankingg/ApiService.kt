@@ -38,4 +38,13 @@ interface BankingApiService {
 
     @GET("banking/notifications")
     suspend fun getNotifications(): Response<NotificationsResponse>
+
+    @POST("banking/transfer")
+    suspend fun transfer(@Body request: TransferRequest): Response<TransferResponse>
+
+    @POST("banking/bills/pay")
+    suspend fun payBill(@Body request: BillPayRequest): Response<BillPayResponse>
+
+    @POST("banking/recharge")
+    suspend fun mobileRecharge(@Body request: RechargeRequest): Response<RechargeResponse>
 }
