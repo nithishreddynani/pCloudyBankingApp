@@ -313,4 +313,57 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (resp.isSuccessful) _notifications.postValue(resp.body()?.notifications)
         else _error.postValue("notifications error")
     }
+
+    suspend fun transfer(recipientName: String, amount: Double, description: String) = withContext(Dispatchers.IO) {
+        _isLoading.postValue(true)
+        try {
+            val resp = RetrofitClient.bankingApiService.transfer(TransferRequest(recipientName, amount, description))
+            if (resp.isSuccessful) {
+                val newBal = resp.body()?.newBalance
+                if (newBal != null) _balanceResponse.postValue(BalanceResponse(newBal))
+            } else {
+                val msg = resp.errorBody()?.string() ?: "Transfer failed"
+                _error.postValue(msg)
+                throw Exception(msg)
+            }
+        } finally {
+            _isLoading.postValue(false)
+        }
+    }
+
+    suspend fun payBill(billType: String, amount: Double) = withContext(Dispatchers.IO) {
+        _isLoading.postValue(true)
+        try {
+            val resp = RetrofitClient.bankingApiService.payBill(BillPayRequest(billType, amount))
+            if (resp.isSuccessful) {
+                val newBal = resp.body()?.newBalance
+                if (newBal != null) _balanceResponse.postValue(BalanceResponse(newBal))
+            } else {
+                val msg = resp.errorBody()?.string() ?: "Bill payment failed"
+                _error.postValue(msg)
+                throw Exception(msg)
+            }
+        } finally {
+            _isLoading.postValue(false)
+        }
+    }
+
+    suspend fun mobileRecharge(mobileNumber: String, operator: String, circle: String, rechargeType: String, amount: Double) = withContext(Dispatchers.IO) {
+        _isLoading.postValue(true)
+        try {
+            val resp = RetrofitClient.bankingApiService.mobileRecharge(
+                RechargeRequest(mobileNumber, operator, circle, rechargeType, amount)
+            )
+            if (resp.isSuccessful) {
+                val newBal = resp.body()?.newBalance
+                if (newBal != null) _balanceResponse.postValue(BalanceResponse(newBal))
+            } else {
+                val msg = resp.errorBody()?.string() ?: "Recharge failed"
+                _error.postValue(msg)
+                throw Exception(msg)
+            }
+        } finally {
+            _isLoading.postValue(false)
+        }
+    }
 }

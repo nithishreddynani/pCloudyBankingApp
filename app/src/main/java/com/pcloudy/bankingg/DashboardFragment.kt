@@ -53,18 +53,15 @@ class DashboardFragment : Fragment() {
 
     private fun setupViews() {
         binding.apply {
-//            transferMoney.setOnClickListener {
-//                findNavController().navigate(R.id.action_dashboard_to_transfer)
-//            }
-//            payBills.setOnClickListener {
-//                findNavController().navigate(R.id.action_dashboard_to_billPayment)
-//            }
-//            cards.setOnClickListener {
-//                findNavController().navigate(R.id.action_dashboard_to_cards)
-//            }
-//            mobileRecharge.setOnClickListener {
-//                findNavController().navigate(R.id.action_dashboard_to_recharge)
-//            }
+            transferMoney.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_transfer)
+            }
+            payBills.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_billPayment)
+            }
+            mobileRecharge.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_recharge)
+            }
             upiPayment.setOnClickListener {
                 findNavController().navigate(R.id.action_dashboard_to_upi)
             }

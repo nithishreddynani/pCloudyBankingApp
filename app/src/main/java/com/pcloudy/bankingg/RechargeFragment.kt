@@ -7,35 +7,25 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.pcloudy.bankingg.databinding.FragmentRechargeBinding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class RechargeFragment : Fragment() {
     private var _binding: FragmentRechargeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: RechargeViewModel by viewModels()
-    private val mainViewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRechargeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupOperatorSpinner()
         setupCircleSpinner()
         setupRechargeTypeSpinner()
@@ -43,201 +33,86 @@ class RechargeFragment : Fragment() {
         observeViewModel()
     }
 
-    private fun setupRechargeButton() {
-        binding.rechargeButton.setOnClickListener {
-            validateAndPerformRecharge()
-        }
-    }
-
-    private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.rechargeState.collect { state ->
-                when (state) {
-                    is RechargeUiState.Loading -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                        binding.rechargeButton.isEnabled = false
-                    }
-                    is RechargeUiState.Success -> {
-                        binding.progressBar.visibility = View.GONE
-                        binding.rechargeButton.isEnabled = true
-
-                        // Create and add transaction
-                        val rechargeTransaction = Transaction(
-                            id = UUID.randomUUID().toString(),
-                            type = "debit",
-                            amount = -state.recharge.amount,
-                            date = java.time.LocalDate.now().toString(),
-                        )
-
-                        // Add transaction to recent transactions
-                        mainViewModel.addTransaction(rechargeTransaction)
-
-                        // Show success message
-                        Snackbar.make(
-                            binding.root,
-                            "Recharge Successful",
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-
-                        // Navigate back to Dashboard
-                        navigateToDashboard()
-                    }
-                    is RechargeUiState.Error -> {
-                        binding.progressBar.visibility = View.GONE
-                        binding.rechargeButton.isEnabled = true
-
-                        Snackbar.make(
-                            binding.root,
-                            state.message,
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
-                    else -> {
-                        binding.progressBar.visibility = View.GONE
-                        binding.rechargeButton.isEnabled = true
-                    }
-                }
-            }
-        }
-    }
-
-    private fun navigateToDashboard() {
-        try {
-            // Try to navigate using SafeArgs if available
-            findNavController().navigate(R.id.action_recharge_to_dashboard)
-        } catch (e: Exception) {
-            // Fallback navigation
-            findNavController().navigateUp()
-        }
-    }
-
     private fun setupOperatorSpinner() {
-        val operators = arrayOf(
-            "Select Operator", "Airtel", "Jio", "VI", "BSNL", "Idea"
-        )
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            operators
-        )
+        val operators = arrayOf("Select Operator", "Airtel", "Jio", "VI", "BSNL", "Idea")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, operators)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.operatorSpinner.adapter = adapter
         binding.operatorSpinner.setSelection(0)
     }
 
     private fun setupCircleSpinner() {
-        val circles = arrayOf(
-            "Select Circle", "Maharashtra", "Gujarat", "Delhi",
-            "Mumbai", "Karnataka", "Tamil Nadu"
-        )
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            circles
-        )
+        val circles = arrayOf("Select Circle", "Maharashtra", "Gujarat", "Delhi", "Mumbai", "Karnataka", "Tamil Nadu")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, circles)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.circleSpinner.adapter = adapter
         binding.circleSpinner.setSelection(0)
     }
 
     private fun setupRechargeTypeSpinner() {
-        val rechargeTypes = arrayOf("Select Type", "Prepaid", "Postpaid")
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            rechargeTypes
-        )
+        val types = arrayOf("Select Type", "Prepaid", "Postpaid")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.rechargeTypeSpinner.adapter = adapter
         binding.rechargeTypeSpinner.setSelection(0)
     }
 
+    private fun setupRechargeButton() {
+        binding.rechargeButton.setOnClickListener { validateAndRecharge() }
+    }
+
+    private fun observeViewModel() {
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            binding.progressBar.visibility = if (loading == true) View.VISIBLE else View.GONE
+            binding.rechargeButton.isEnabled = loading != true
+        }
+    }
+
+    private fun validateAndRecharge() {
+        val mobile = binding.mobileNumberInput.text.toString().trim()
+        val amountStr = binding.amountInput.text.toString().trim()
+        val operatorPos = binding.operatorSpinner.selectedItemPosition
+        val circlePos = binding.circleSpinner.selectedItemPosition
+        val typePos = binding.rechargeTypeSpinner.selectedItemPosition
+
+        when {
+            mobile.length != 10 -> { binding.mobileNumberInputLayout.error = "Invalid mobile number"; return }
+            amountStr.isEmpty() -> { binding.amountInputLayout.error = "Enter recharge amount"; return }
+            operatorPos == 0 -> { showError("Select Operator"); return }
+            circlePos == 0 -> { showError("Select Circle"); return }
+            typePos == 0 -> { showError("Select Recharge Type"); return }
+        }
+
+        val amount = amountStr.toDoubleOrNull()
+        if (amount == null || amount <= 0) { binding.amountInputLayout.error = "Invalid amount"; return }
+
+        val currentBalance = viewModel.balanceResponse.value?.balance ?: 0.0
+        if (amount > currentBalance) { showError("Insufficient balance"); return }
+
+        val operator = binding.operatorSpinner.selectedItem.toString()
+        val circle = binding.circleSpinner.selectedItem.toString()
+        val rechargeType = binding.rechargeTypeSpinner.selectedItem.toString()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                viewModel.mobileRecharge(mobile, operator, circle, rechargeType, amount)
+                Snackbar.make(binding.root, "Recharge successful!", Snackbar.LENGTH_SHORT).show()
+                findNavController().navigateUp()
+            } catch (e: Exception) {
+                // error already posted to viewModel.error
+            }
+        }
+    }
+
+    private fun showError(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun validateAndPerformRecharge() {
-        // Null check for binding
-        val currentBinding = _binding ?: return
-
-        // Validation
-        val mobileNumber = currentBinding.mobileNumberInput.text.toString().trim()
-        val amountStr = currentBinding.amountInput.text.toString().trim()
-        val operatorPosition = currentBinding.operatorSpinner.selectedItemPosition
-        val circlePosition = currentBinding.circleSpinner.selectedItemPosition
-        val rechargeTypePosition = currentBinding.rechargeTypeSpinner.selectedItemPosition
-
-        // Comprehensive validation
-        when {
-            mobileNumber.length != 10 -> {
-                currentBinding.mobileNumberInputLayout.error = "Invalid mobile number"
-                return
-            }
-            amountStr.isEmpty() -> {
-                currentBinding.amountInputLayout.error = "Enter recharge amount"
-                return
-            }
-            operatorPosition == 0 -> {
-                Snackbar.make(currentBinding.root, "Select Operator", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-            circlePosition == 0 -> {
-                Snackbar.make(currentBinding.root, "Select Circle", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-            rechargeTypePosition == 0 -> {
-                Snackbar.make(currentBinding.root, "Select Recharge Type", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-        }
-
-        // Parse amount
-        val amount = amountStr.toDoubleOrNull() ?: run {
-            currentBinding.amountInputLayout.error = "Invalid amount"
-            return
-        }
-
-        // Get selected values
-        val operator = currentBinding.operatorSpinner.selectedItem.toString()
-        val circle = currentBinding.circleSpinner.selectedItem.toString()
-        val rechargeTypeString = currentBinding.rechargeTypeSpinner.selectedItem.toString()
-
-        // Perform recharge with API simulation
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                mainViewModel.simulateApiCall("/mobile/recharge") {
-                    // Ensure we're on the Main thread and binding is still valid
-                    withContext(Dispatchers.Main) {
-                        // Check binding again before using
-                        val safeBinding = _binding
-                        if (safeBinding != null) {
-                            // Create recharge transaction
-                            val rechargeTransaction = Transaction(
-                                id = UUID.randomUUID().toString(),
-                                type = "recharge",
-                                amount = -amount,
-                                date = System.currentTimeMillis().toString(),
-                            )
-
-                            // Add transaction and update balance
-                            mainViewModel.addTransaction(rechargeTransaction)
-
-                            // Navigate to dashboard
-                            findNavController().navigate(R.id.action_recharge_to_dashboard)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                // Check binding before showing Snackbar
-                _binding?.let {
-                    Snackbar.make(
-                        it.root,
-                        "Recharge failed: ${e.message}",
-                        Snackbar.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
     }
 }

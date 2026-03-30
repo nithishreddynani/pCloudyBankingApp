@@ -24,6 +24,18 @@ data class TransactionPage(
     val pagination: Pagination
 )
 
+// ── transfer ──
+data class TransferRequest(val recipientName: String, val amount: Double, val description: String)
+data class TransferResponse(val success: Boolean, val message: String?, val transaction: Transaction?, val newBalance: Double?)
+
+// ── bill payment ──
+data class BillPayRequest(val billType: String, val amount: Double)
+data class BillPayResponse(val success: Boolean, val message: String?, val transaction: Transaction?, val newBalance: Double?)
+
+// ── mobile recharge ──
+data class RechargeRequest(val mobileNumber: String, val operator: String, val circle: String, val rechargeType: String, val amount: Double)
+data class RechargeResponse(val success: Boolean, val message: String?, val transaction: Transaction?, val newBalance: Double?)
+
 // ── notifications ──
 data class NotificationItem(val type: String, val title: String?, val body: String?, val message: String?)
 data class NotificationsResponse(val success: Boolean, val notifications: List<NotificationItem>, val unreadCount: Int)

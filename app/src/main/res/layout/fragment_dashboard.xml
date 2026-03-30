@@ -85,73 +85,79 @@
                     android:rowCount="2">
 
                     <!-- Transfer Money -->
-<!--                    <LinearLayout-->
-<!--                        android:id="@+id/transferMoney"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_columnWeight="1"-->
-<!--                        android:gravity="center"-->
-<!--                        android:orientation="vertical"-->
-<!--                        android:padding="8dp">-->
+                    <LinearLayout
+                        android:id="@+id/transferMoney"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-<!--                        <ImageView-->
-<!--                            android:layout_width="40dp"-->
-<!--                            android:layout_height="40dp"-->
-<!--                            android:src="@drawable/ic_transfer" />-->
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_transfer"
+                            app:tint="@color/quick_action_icon_tint" />
 
-<!--                        <TextView-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_marginTop="4dp"-->
-<!--                            android:text="Transfer"-->
-<!--                            android:textSize="12sp" />-->
-<!--                    </LinearLayout>-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Transfer"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
 
-<!--                    &lt;!&ndash; Pay Bills &ndash;&gt;-->
-<!--                    <LinearLayout-->
-<!--                        android:id="@+id/payBills"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_columnWeight="1"-->
-<!--                        android:gravity="center"-->
-<!--                        android:orientation="vertical"-->
-<!--                        android:padding="8dp">-->
+                    <!-- Pay Bills -->
+                    <LinearLayout
+                        android:id="@+id/payBills"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-<!--                        <ImageView-->
-<!--                            android:layout_width="40dp"-->
-<!--                            android:layout_height="40dp"-->
-<!--                            android:src="@drawable/ic_bill" />-->
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_bill"
+                            app:tint="@color/quick_action_icon_tint" />
 
-<!--                        <TextView-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_marginTop="4dp"-->
-<!--                            android:text="Pay Bills"-->
-<!--                            android:textSize="12sp" />-->
-<!--                    </LinearLayout>-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Pay Bills"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
 
-<!--                    &lt;!&ndash; Mobile Recharge &ndash;&gt;-->
-<!--                    <LinearLayout-->
-<!--                        android:id="@+id/mobileRecharge"-->
-<!--                        android:layout_width="0dp"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_columnWeight="1"-->
-<!--                        android:gravity="center"-->
-<!--                        android:orientation="vertical"-->
-<!--                        android:padding="8dp">-->
+                    <!-- Mobile Recharge -->
+                    <LinearLayout
+                        android:id="@+id/mobileRecharge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="8dp">
 
-<!--                        <ImageView-->
-<!--                            android:layout_width="40dp"-->
-<!--                            android:layout_height="40dp"-->
-<!--                            android:src="@drawable/ic_mobile" />-->
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_mobile"
+                            app:tint="@color/quick_action_icon_tint" />
 
-<!--                        <TextView-->
-<!--                            android:layout_width="wrap_content"-->
-<!--                            android:layout_height="wrap_content"-->
-<!--                            android:layout_marginTop="4dp"-->
-<!--                            android:text="Recharge"-->
-<!--                            android:textSize="12sp" />-->
-<!--                    </LinearLayout>-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Recharge"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
 
                     <!-- UPI -->
                     <LinearLayout

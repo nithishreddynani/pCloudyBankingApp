@@ -230,6 +230,69 @@ function handleGetNotifications(req, res) {
   res.json({ success: true, notifications, unreadCount: notifications.filter(n => !n.read).length });
 }
 
+function handleTransfer(req, res) {
+  const { recipientName, amount, description } = req.body;
+  if (!recipientName || !amount || parseFloat(amount) <= 0) {
+    return res.status(400).json({ success: false, message: 'recipientName and amount are required' });
+  }
+  const state = getState(req.user.username);
+  if (parseFloat(amount) > state.balance) {
+    return res.status(422).json({ success: false, message: 'Insufficient balance', errorCode: 'INSUFFICIENT_FUNDS' });
+  }
+  state.balance -= parseFloat(amount);
+  const txn = {
+    id: uuidv4(), type: 'debit', amount: -parseFloat(amount),
+    description: description || `Transfer to ${recipientName}`,
+    date: new Date().toISOString(), status: 'SUCCESS',
+    referenceId: `TXN${Date.now()}`,
+  };
+  state.transactions.unshift(txn);
+  if (state.balance < 5000) state.lowBalancePending = true;
+  res.json({ success: true, message: 'Transfer successful', transaction: txn, newBalance: state.balance });
+}
+
+function handleBillPay(req, res) {
+  const { billType, amount } = req.body;
+  if (!billType || !amount || parseFloat(amount) <= 0) {
+    return res.status(400).json({ success: false, message: 'billType and amount are required' });
+  }
+  const state = getState(req.user.username);
+  if (parseFloat(amount) > state.balance) {
+    return res.status(422).json({ success: false, message: 'Insufficient balance', errorCode: 'INSUFFICIENT_FUNDS' });
+  }
+  state.balance -= parseFloat(amount);
+  const txn = {
+    id: uuidv4(), type: 'debit', amount: -parseFloat(amount),
+    description: `${billType} Payment`,
+    date: new Date().toISOString(), status: 'SUCCESS',
+    referenceId: `BILL${Date.now()}`,
+  };
+  state.transactions.unshift(txn);
+  if (state.balance < 5000) state.lowBalancePending = true;
+  res.json({ success: true, message: 'Bill payment successful', transaction: txn, newBalance: state.balance });
+}
+
+function handleMobileRecharge(req, res) {
+  const { mobileNumber, operator, rechargeType, amount } = req.body;
+  if (!mobileNumber || !operator || !amount || parseFloat(amount) <= 0) {
+    return res.status(400).json({ success: false, message: 'mobileNumber, operator and amount are required' });
+  }
+  const state = getState(req.user.username);
+  if (parseFloat(amount) > state.balance) {
+    return res.status(422).json({ success: false, message: 'Insufficient balance', errorCode: 'INSUFFICIENT_FUNDS' });
+  }
+  state.balance -= parseFloat(amount);
+  const txn = {
+    id: uuidv4(), type: 'debit', amount: -parseFloat(amount),
+    description: `${operator} ${rechargeType || 'Prepaid'} Recharge - ${mobileNumber}`,
+    date: new Date().toISOString(), status: 'SUCCESS',
+    referenceId: `RCH${Date.now()}`,
+  };
+  state.transactions.unshift(txn);
+  if (state.balance < 5000) state.lowBalancePending = true;
+  res.json({ success: true, message: 'Recharge successful', transaction: txn, newBalance: state.balance });
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // SPEC ROUTES  (original paths from the API spec)
 // ══════════════════════════════════════════════════════════════════════════════
@@ -250,6 +313,9 @@ app.post('/banking/upi/pay',      authGuard, handleUpiPay);
 app.get('/banking/transactions',  authGuard, handleGetTransactions);
 app.post('/banking/topup',        authGuard, handleWalletTopup);
 app.get('/banking/notifications', authGuard, handleGetNotifications);
+app.post('/banking/bills/pay',    authGuard, handleBillPay);
+app.post('/banking/recharge',     authGuard, handleMobileRecharge);
+app.post('/banking/transfer',     authGuard, handleTransfer);
 
 // ══════════════════════════════════════════════════════════════════════════════
 // EXTRA ENDPOINTS
