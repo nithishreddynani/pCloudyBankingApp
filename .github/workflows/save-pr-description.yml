@@ -1,0 +1,36 @@
+name: Save PR Description
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  save_description:
+    if: github.event.comment.user.login == 'qodo-merge-pro[bot]' || github.event.comment.user.login == 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Save PR Description
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          mkdir -p pr_descriptions
+          echo "PR #$PR_NUMBER - Qodo Review" > pr_descriptions/pr_${PR_NUMBER}_description.txt
+          echo "Generated on: $(date)" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
+          echo "-----------------------------------" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
+          echo "$COMMENT_BODY" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
+
+      - name: Commit description file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add pr_descriptions/
+          git diff --staged --quiet || git commit -m "Save Qodo review for PR #${{ github.event.issue.number }}"
+          git push
