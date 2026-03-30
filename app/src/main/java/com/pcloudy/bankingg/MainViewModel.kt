@@ -5,10 +5,8 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.compose.ui.window.application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -21,6 +19,7 @@ import java.util.UUID
 import kotlin.random.Random
 import android.os.Process
 import androidx.lifecycle.AndroidViewModel
+import com.airbnb.epoxy.databinding.BuildConfig
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableLiveData<Boolean>()
@@ -41,6 +40,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var simulatedDelay: Long = 0
     var crashProbability: Float = 0f
 
+    init {
+        // Mock server is now started in MainActivity
+        Log.d("MainViewModel", "MainViewModel initialized")
+    }
+
     enum class OperationType {
         BANKING_AND_ATM,  // For transfers, bill payments, and ATM searches
         NETWORK          // For network monitoring only
@@ -52,7 +56,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun logout() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    RetrofitClient.authApiService.logout()
+                } catch (_: Exception) {
+                    // best-effort — proceed with local cleanup regardless
+                }
+                RetrofitClient.authToken = null
+            }
             _isLoading.value = false
             _error.value = null
             _balance.value = 1000.0
@@ -181,11 +193,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             // Credit salary
             val salaryTransaction = Transaction(
                 id = UUID.randomUUID().toString(),
+                type = "credit",
                 amount = 1000.0,
-                type = "deposit",
-                description = "Salary Deposit",
-                date = System.currentTimeMillis(),
-                status = "Completed"
+                date = java.time.LocalDate.now().toString(),
             )
 
             // Add salary transaction
@@ -205,5 +215,102 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         currentTransactions.add(0, transaction)
         val updatedTransactions = currentTransactions.take(3)
         _transactions.value = updatedTransactions
+    }
+
+    // New API integration properties
+    private val _balanceResponse = MutableLiveData<BalanceResponse>()
+    val balanceResponse: LiveData<BalanceResponse> = _balanceResponse
+
+    private val _walletBalance = MutableLiveData<WalletBalanceResponse>()
+    val walletBalance: LiveData<WalletBalanceResponse> = _walletBalance
+
+    private val _upiResult = MutableLiveData<UpiResponse>()
+    val upiResult: LiveData<UpiResponse> = _upiResult
+
+    private val _transactionsPage = MutableStateFlow<TransactionPage?>(null)
+    val transactionsPage: StateFlow<TransactionPage?> = _transactionsPage.asStateFlow()
+
+    private val _notifications = MutableLiveData<List<NotificationItem>>()
+    val notifications: LiveData<List<NotificationItem>> = _notifications
+
+    private val _failedTransactions = MutableLiveData<MutableList<Transaction>>(mutableListOf())
+    val failedTransactions: LiveData<MutableList<Transaction>> = _failedTransactions
+
+
+
+    fun addFailedTransaction(upiId: String, amount: Double, reason: String) {
+        val failed = Transaction(
+            id = java.util.UUID.randomUUID().toString(),
+            type = "debit",
+            amount = -amount,
+            description = "Failed: UPI to $upiId",
+            date = java.time.Instant.now().toString(),
+            status = "FAILED",
+            referenceId = "TXN${System.currentTimeMillis()}"
+        )
+        val current = _failedTransactions.value ?: mutableListOf()
+        current.add(0, failed)
+        _failedTransactions.postValue(current)
+    }
+
+    // API wrapper methods
+    suspend fun registerUser(username: String, password: String, name: String): RegisterResponse =
+        withContext(Dispatchers.IO) {
+            val resp = RetrofitClient.authApiService.register(RegisterRequest(username, password, name))
+            if (resp.isSuccessful) {
+                val body = resp.body()!!
+                RetrofitClient.authToken = body.token
+                body
+            } else throw Exception(resp.errorBody()?.string() ?: "Registration failed")
+        }
+
+    suspend fun loginUser(username: String, password: String): LoginResponse =
+        withContext(Dispatchers.IO) {
+            val resp = RetrofitClient.authApiService.login(LoginRequest(username, password))
+            if (resp.isSuccessful) {
+                val body = resp.body()!!
+                RetrofitClient.authToken = body.token  // store token for all subsequent requests
+                body
+            } else throw Exception(resp.errorBody()?.string() ?: "login failed")
+        }
+
+    suspend fun fetchBalance() = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.getBalance()
+        if (resp.isSuccessful) _balanceResponse.postValue(resp.body())
+        else _error.postValue("balance error")
+    }
+
+    suspend fun submitUpiPayment(id: String, amount: Double) = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.payUpi(UpiRequest(id, amount))
+        if (resp.isSuccessful) {
+            _upiResult.postValue(resp.body())
+            resp.body()?.newBalance?.let { newBal ->
+                _balanceResponse.postValue(BalanceResponse(newBal))
+            }
+        } else throw Exception(resp.errorBody()?.string() ?: "Payment failed")
+    }
+
+    suspend fun loadTransactions(page: Int) = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.listTransactions(page)
+        if (resp.isSuccessful) _transactionsPage.value = resp.body()
+        else _error.postValue("transactions error")
+    }
+
+    suspend fun fetchWalletBalance() = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.getWalletBalance()
+        if (resp.isSuccessful) _walletBalance.postValue(resp.body())
+        else _error.postValue("wallet balance error")
+    }
+
+    suspend fun topupWallet(amount: Double) = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.topup(TopupRequest(amount))
+        if (!resp.isSuccessful) throw Exception(resp.errorBody()?.string() ?: "Top-up failed")
+        // don't update _balanceResponse here — WalletFragment calls fetchBalance() after topup
+    }
+
+    suspend fun fetchNotifications() = withContext(Dispatchers.IO) {
+        val resp = RetrofitClient.bankingApiService.getNotifications()
+        if (resp.isSuccessful) _notifications.postValue(resp.body()?.notifications)
+        else _error.postValue("notifications error")
     }
 }

@@ -1,6 +1,7 @@
 package com.pcloudy.bankingg
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +44,7 @@ class LoginFragment : Fragment() {
         requireActivity().window.decorView.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
 
         setupViews()
-        setupBiometricLogin()
+//        setupBiometricLogin()
         observeViewModel()
     }
 
@@ -55,6 +56,9 @@ class LoginFragment : Fragment() {
     private fun setupViews() {
         binding.apply {
             buttonLogin.setOnClickListener { handleTraditionalLogin() }
+            textRegisterLink.setOnClickListener {
+                findNavController().navigate(R.id.action_login_to_register)
+            }
 
             editPassword.addTextChangedListener(object : android.text.TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -89,12 +93,12 @@ class LoginFragment : Fragment() {
 
     private fun setupBiometricLogin() {
         // Always show the biometric button
-        binding.buttonBiometricLogin.visibility = View.VISIBLE
+//        binding.buttonBiometricLogin.visibility = View.VISIBLE
 
         // Setup simple click listener to show biometric prompt
-        binding.buttonBiometricLogin.setOnClickListener {
-            showBiometricPrompt()
-        }
+//        binding.buttonBiometricLogin.setOnClickListener {
+//            showBiometricPrompt()
+//        }
 
         // Setup biometric authentication
         executor = ContextCompat.getMainExecutor(requireContext())
@@ -175,17 +179,15 @@ class LoginFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 viewModel.simulateApiCall("/auth/login") {
-                    if (username == "demo" && password == "password123") {
-                        withContext(Dispatchers.Main) {
-                            navigateToDashboard(username)
-                        }
-                    } else {
-                        throw Exception("Invalid credentials")
+                    Log.d("LoginFragment", "Login attempt: username=$username")
+                    val loginResponse = viewModel.loginUser(username, password)
+                    withContext(Dispatchers.Main) {
+                        navigateToDashboard(loginResponse.username)
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Snackbar.make(binding.root, e.message ?: "Error occurred", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(binding.root, e.message ?: "Login failed", Snackbar.LENGTH_LONG).show()
                 }
             }
         }

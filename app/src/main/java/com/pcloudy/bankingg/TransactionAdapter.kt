@@ -98,36 +98,36 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
 
         fun bind(transaction: Transaction) {
             binding.apply {
-                // Customize description based on transaction type
                 transactionDescription.text = getTransactionDescription(transaction)
-
-                // Format amount with appropriate sign and color
                 transactionAmount.text = formatAmount(transaction.amount)
-                transactionAmount.setTextColor(getAmountColor(transaction.amount))
+                transactionDate.text = transaction.date
 
-                // Format date
-                transactionDate.text = formatDate(transaction.date)
-
-                // Set status
-                transactionStatus.text = transaction.status
+                if (transaction.status == "FAILED") {
+                    transactionStatus.text = "Failed"
+                    transactionStatus.setTextColor(Color.RED)
+                    transactionAmount.setTextColor(Color.RED)
+                } else {
+                    transactionStatus.text = "Completed"
+                    transactionAmount.setTextColor(getAmountColor(transaction.amount))
+                    transactionStatus.setTextColor(Color.GRAY)
+                }
             }
         }
 
         private fun getTransactionDescription(transaction: Transaction): String {
-            return when (transaction.type) {
-                "recharge" -> "Mobile Recharge"
-                "transfer" -> "Money Transfer"
-                "bill" -> "Bill Payment"
-                "deposit" -> "Salary Deposit"
-                else -> transaction.description
+            return if (transaction.description.isNotEmpty()) transaction.description
+            else when (transaction.type) {
+                "debit" -> "Debit Transaction"
+                "credit" -> "Credit Transaction"
+                else -> "${transaction.type} Transaction"
             }
         }
 
         private fun formatAmount(amount: Double): String {
             return if (amount < 0) {
-                "-$${String.format("%.2f", -amount)}"
+                "-₹${String.format("%.2f", -amount)}"
             } else {
-                "$${String.format("%.2f", amount)}"
+                "+₹${String.format("%.2f", amount)}"
             }
         }
 
@@ -143,8 +143,13 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.TransactionVi
 
     fun updateTransactions(newTransactions: List<Transaction>) {
         transactions.clear()
-        // Take only the last 3 transactions
-        transactions.addAll(newTransactions.takeLast(3))
+        transactions.addAll(newTransactions)
         notifyDataSetChanged()
+    }
+
+    fun addTransactions(newTransactions: List<Transaction>) {
+        val startPosition = transactions.size
+        transactions.addAll(newTransactions)
+        notifyItemRangeInserted(startPosition, newTransactions.size)
     }
 }

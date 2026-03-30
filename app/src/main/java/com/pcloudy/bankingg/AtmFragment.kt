@@ -35,7 +35,7 @@ class AtmFragment : Fragment() {
 
     companion object {
         private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-        private const val API_KEY = "AIzaSyCwnVGa_ECbXENR35uiJ5edhKd_lyw7Qck"
+        private const val API_KEY = "sssssss"
     }
 
     @SuppressLint("MissingInflatedId")
@@ -252,7 +252,7 @@ class AtmFragment : Fragment() {
 //
 //    companion object {
 //        private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-//        private const val API_KEY = "AIzaSyCwnVGa_ECbXENR35uiJ5edhKd_lyw7Qck"
+//        private const val API_KEY = "sssss"
 //    }
 //
 //    override fun onCreateView(
@@ -458,7 +458,7 @@ class AtmFragment : Fragment() {
 //    private val HSR_4TH_SECTOR_LOCATION = LatLng(12.9137, 77.6413) // HSR Layout 4th Sector coordinates
 //
 //    companion object {
-//        private const val API_KEY = "AIzaSyCwnVGa_ECbXENR35uiJ5edhKd_lyw7Qck"
+//        private const val API_KEY = "ssssss"
 //        private const val RADIUS_IN_METERS = 1000 // 1 km radius
 //    }
 //
@@ -641,7 +641,7 @@ class AtmFragment : Fragment() {
 //
 //    companion object {
 //        private const val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1
-//        private const val API_KEY = "AIzaSyCwnVGa_ECbXENR35uiJ5edhKd_lyw7Qck"
+//        private const val API_KEY = "ssss"
 //        private const val RADIUS_IN_METERS = 1000000000 // 1 km
 //    }
 //

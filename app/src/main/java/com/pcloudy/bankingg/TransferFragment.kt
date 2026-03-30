@@ -59,11 +59,9 @@ class TransferFragment : Fragment() {
                             // Add transaction
                             val newTransaction = Transaction(
                                 id = UUID.randomUUID().toString(),
+                                type = "debit",
                                 amount = -amountValue,
-                                type = "transfer",
-                                description = "Transfer to $recipientName",
-                                date = System.currentTimeMillis(),
-                                status = "Completed"
+                                date = System.currentTimeMillis().toString(),
                             )
 
                             viewModel.addTransaction(newTransaction)
@@ -133,11 +131,9 @@ class TransferFragment : Fragment() {
             // Create transfer transaction
             val transferTransaction = Transaction(
                 id = UUID.randomUUID().toString(),
-                amount = -amount,
                 type = "transfer",
-                description = "Transfer to $recipientName",
-                date = System.currentTimeMillis(),
-                status = "Completed"
+                amount = -amount,
+                date = System.currentTimeMillis().toString()
             )
 
             // Add transaction to recent transactions
