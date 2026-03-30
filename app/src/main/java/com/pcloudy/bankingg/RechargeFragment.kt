@@ -15,6 +15,7 @@ import com.pcloudy.bankingg.databinding.FragmentRechargeBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class RechargeFragment : Fragment() {
     private var _binding: FragmentRechargeBinding? = null
@@ -62,9 +63,10 @@ class RechargeFragment : Fragment() {
 
                         // Create and add transaction
                         val rechargeTransaction = Transaction(
+                            id = UUID.randomUUID().toString(),
+                            type = "debit",
                             amount = -state.recharge.amount,
-                            type = "recharge",
-                            description = "${state.recharge.operator} Recharge - ${state.recharge.mobileNumber}"
+                            date = java.time.LocalDate.now().toString(),
                         )
 
                         // Add transaction to recent transactions
@@ -212,9 +214,10 @@ class RechargeFragment : Fragment() {
                         if (safeBinding != null) {
                             // Create recharge transaction
                             val rechargeTransaction = Transaction(
-                                amount = -amount,
+                                id = UUID.randomUUID().toString(),
                                 type = "recharge",
-                                description = "$operator Recharge - $mobileNumber"
+                                amount = -amount,
+                                date = System.currentTimeMillis().toString(),
                             )
 
                             // Add transaction and update balance

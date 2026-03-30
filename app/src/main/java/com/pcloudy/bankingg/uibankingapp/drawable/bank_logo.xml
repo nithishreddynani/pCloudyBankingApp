@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Bank Building Shape -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M12,3L2,9v2h20V9L12,3zM12,5l6,4H6L12,5z"/>
+
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M4,11v6h4v-6H4zM10,11v6h4v-6H10zM16,11v6h4v-6H16z"/>
+
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M2,19h20v2H2V19z"/>
+</vector>

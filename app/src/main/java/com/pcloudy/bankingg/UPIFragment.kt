@@ -53,30 +53,13 @@ class UPIFragment : Fragment() {
             lifecycleScope.launch {
                 try {
                     val amountValue = amount.toDouble()
-                    viewModel.simulateApiCall("/api/upi/pay") {
-                        withContext(Dispatchers.Main) {
-                            viewModel.updateBalance(-amountValue)
+                    viewModel.submitUpiPayment(upiId, amountValue)
 
-                            // Create new transaction
-                            val newTransaction = Transaction(
-                                id = UUID.randomUUID().toString(),
-                                amount = -amountValue,
-                                type = "upi",
-                                description = "UPI Payment to $upiId${if (note.isNotBlank()) " - $note" else ""}",
-                                date = System.currentTimeMillis(),
-                                status = "Completed"
-                            )
-
-                            viewModel.addTransaction(newTransaction)
-
-                            // Navigate back
-                            findNavController().navigateUp()
-                        }
-                    }
+                    // Navigate back on success
+                    findNavController().navigateUp()
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Snackbar.make(binding.root, "Payment failed: ${e.message}", Snackbar.LENGTH_LONG).show()
-                    }
+                    viewModel.addFailedTransaction(upiId, amount.toDouble(), e.message ?: "Payment failed")
+                    Snackbar.make(binding.root, "Payment failed: ${e.message}", Snackbar.LENGTH_LONG).show()
                 }
             }
         }
@@ -105,7 +88,8 @@ class UPIFragment : Fragment() {
                 return false
             }
 
-            if (amountValue > viewModel.balance.value ?: 0.0) {
+            val currentBalance = viewModel.balanceResponse.value?.balance ?: 0.0
+            if (amountValue > currentBalance) {
                 showError("Insufficient balance")
                 return false
             }

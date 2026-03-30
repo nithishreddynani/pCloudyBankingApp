@@ -1,6 +1,5 @@
 package com.pcloudy.bankingg
 
-import android.R
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,15 +8,9 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.pcloudy.bankingg.databinding.FragmentBillPaymentBinding
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 //class BillPaymentFragment : Fragment() {
@@ -253,11 +246,9 @@ class BillPaymentFragment : Fragment() {
             // Create bill payment transaction
             val billTransaction = Transaction(
                 id = UUID.randomUUID().toString(),
+                type = "debit",
                 amount = -amount,
-                type = "bill",
-                description = "$billType Payment",
-                date = System.currentTimeMillis(),
-                status = "Completed"
+                date = java.time.LocalDate.now().toString(),
             )
 
             // Add transaction to recent transactions

@@ -18,6 +18,20 @@
                 app:argType="string"
                 android:defaultValue=""/>
         </action>
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.pcloudy.bankingg.RegisterFragment"
+        android:label="Create Account">
+        <action
+            android:id="@+id/action_register_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -45,6 +59,21 @@
         <action
             android:id="@+id/action_dashboard_to_recharge"
             app:destination="@id/rechargeFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_upi"
+            app:destination="@id/upiFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_wallet"
+            app:destination="@id/walletFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_transactions"
+            app:destination="@id/transactionsFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_profile"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_anr"
+            app:destination="@id/profileFragment" />
     </fragment>
 
     <fragment
@@ -102,11 +131,17 @@
         app:destination="@id/upiFragment"/>
 
     <fragment
-        android:id="@+id/anrFragment"
-        android:name="com.pcloudy.bankingg.ANRFragment"
-        android:label="ANR Test"/>
+        android:id="@+id/transactionsFragment"
+        android:name="com.pcloudy.bankingg.TransactionHistoryFragment"
+        android:label="Transactions" />
 
-    <action
-        android:id="@+id/action_anr"
-        app:destination="@id/anrFragment"/>
+    <fragment
+        android:id="@+id/walletFragment"
+        android:name="com.pcloudy.bankingg.WalletFragment"
+        android:label="Wallet" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.pcloudy.bankingg.ProfileFragment"
+        android:label="Profile" />
 </navigation>

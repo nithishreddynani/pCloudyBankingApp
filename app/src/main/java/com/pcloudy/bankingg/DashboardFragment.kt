@@ -1,13 +1,9 @@
 package com.pcloudy.bankingg
 
-import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -16,15 +12,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import com.pcloudy.bankingg.databinding.FragmentDashboardBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
@@ -47,7 +39,11 @@ class DashboardFragment : Fragment() {
         setupViews()
         setupTransactionsList()
         observeViewModel()
-        loadDummyData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadData()  // always fetch fresh balance from server when dashboard is visible
     }
 
     override fun onDestroyView() {
@@ -57,20 +53,29 @@ class DashboardFragment : Fragment() {
 
     private fun setupViews() {
         binding.apply {
-            transferMoney.setOnClickListener {
-                findNavController().navigate(R.id.action_dashboard_to_transfer)
-            }
-            payBills.setOnClickListener {
-                findNavController().navigate(R.id.action_dashboard_to_billPayment)
-            }
-            cards.setOnClickListener {
-                findNavController().navigate(R.id.action_dashboard_to_cards)
-            }
-            mobileRecharge.setOnClickListener {
-                findNavController().navigate(R.id.action_dashboard_to_recharge)
-            }
+//            transferMoney.setOnClickListener {
+//                findNavController().navigate(R.id.action_dashboard_to_transfer)
+//            }
+//            payBills.setOnClickListener {
+//                findNavController().navigate(R.id.action_dashboard_to_billPayment)
+//            }
+//            cards.setOnClickListener {
+//                findNavController().navigate(R.id.action_dashboard_to_cards)
+//            }
+//            mobileRecharge.setOnClickListener {
+//                findNavController().navigate(R.id.action_dashboard_to_recharge)
+//            }
             upiPayment.setOnClickListener {
                 findNavController().navigate(R.id.action_dashboard_to_upi)
+            }
+            wallet.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_wallet)
+            }
+            transactions.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_transactions)
+            }
+            profile.setOnClickListener {
+                findNavController().navigate(R.id.action_dashboard_to_profile)
             }
             more.setOnClickListener {
                 findNavController().navigate(R.id.action_anr)
@@ -122,20 +127,34 @@ class DashboardFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        // Observe balance
-        viewModel.balance.observe(viewLifecycleOwner) { balance ->
-            binding.balanceAmount.text = "$${balance}"
+        viewModel.balanceResponse.removeObservers(viewLifecycleOwner)
+        viewModel.notifications.removeObservers(viewLifecycleOwner)
+        viewModel.isLoading.removeObservers(viewLifecycleOwner)
+        viewModel.error.removeObservers(viewLifecycleOwner)
+
+        // Observe balance from server
+        viewModel.balanceResponse.observe(viewLifecycleOwner) { response ->
+            response?.let { binding.balanceAmount.text = "₹${it.balance}" }
+        }
+
+        // Observe notifications — show alerts for money received and low balance
+        viewModel.notifications.observe(viewLifecycleOwner) { notifications ->
+            val moneyReceived = notifications?.firstOrNull { it.type == "MONEY_RECEIVED" }
+            if (moneyReceived != null) {
+                Snackbar.make(binding.root, moneyReceived.body ?: "Money received", Snackbar.LENGTH_LONG).show()
+            }
+            val lowBalance = notifications?.firstOrNull { it.type == "LOW_BALANCE" }
+            if (lowBalance != null) {
+                Snackbar.make(binding.root, lowBalance.body ?: "Low balance alert", Snackbar.LENGTH_LONG)
+                    .setAction("Top Up") {
+                        findNavController().navigate(R.id.action_dashboard_to_wallet)
+                    }
+                    .show()
+            }
         }
 
         // Observe loading state
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-//            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-//            // Disable buttons while loading
-//            binding.apply {
-//                buttonTransfer.isEnabled = !isLoading
-//                buttonLogout.isEnabled = !isLoading
-//            }
-        }
+        viewModel.isLoading.observe(viewLifecycleOwner) { _ -> }
 
         // Observe error messages
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
@@ -146,8 +165,8 @@ class DashboardFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.transactions.collect { transactions ->
-                    transactionAdapter.updateTransactions(transactions)
+                viewModel.transactionsPage.collect { page ->
+                    page?.let { transactionAdapter.updateTransactions(it.transactions) }
                 }
             }
         }
@@ -160,40 +179,12 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun loadDummyData() {
-        val dummyTransactions = listOf(
-            Transaction(
-                "1",
-                -50.0,
-                "bill",
-                "Electricity Bill Payment",
-                System.currentTimeMillis() - 86400000, // 1 day ago
-                "Completed"
-            ),
-            Transaction(
-                "2",
-                -100.0,
-                "transfer",
-                "Transfer to John",
-                System.currentTimeMillis() - 172800000, // 2 days ago
-                "Completed"
-            ),
-            Transaction(
-                "3",
-                500.0,
-                "deposit",
-                "Salary Deposit",
-                System.currentTimeMillis() - 259200000, // 3 days ago
-                "Completed"
-            )
-        )
-        transactionAdapter.updateTransactions(dummyTransactions)
-
-        // Update spending summary
-//        binding.apply {
-//            monthlySpending.text = "This month: $650.00"
-//            spendingTrend.text = "15% less than last month"
-//        }
+    private fun loadData() {
+        lifecycleScope.launch {
+            viewModel.fetchBalance()
+            viewModel.loadTransactions(1)
+            viewModel.fetchNotifications()
+        }
     }
 
 }

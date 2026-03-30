@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 
 class ATMFinderService {
 //    companion object {
-//        private const val HERE_API_KEY = "ZmsUcy9qkCXmvatFLGX-L9kj2XyfH-GCZbUOBZNqj7U"
+//        private const val HERE_API_KEY = "sssss"
 //        private const val POSTAL_API_BASE_URL = "https://api.postalpincode.in/pincode/"
 //    }
 //
