@@ -1,4 +1,4 @@
-name: Save PR Description
+name: Save PR Walkthrough Description
 
 on:
   issue_comment:
@@ -6,31 +6,46 @@ on:
 
 jobs:
   save_description:
-    if: github.event.comment.user.login == 'qodo-merge-pro[bot]' || github.event.comment.user.login == 'github-actions[bot]'
+    if: contains(github.event.comment.user.login, 'qodo') || contains(github.event.comment.user.login, 'CodiumAI')
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Save PR Description
+      - name: Extract Walkthrough Description and Save
         env:
-          COMMENT_BODY: ${{ github.event.comment.body }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
+          PR_TITLE: ${{ github.event.issue.title }}
         run: |
           mkdir -p pr_descriptions
-          echo "PR #$PR_NUMBER - Qodo Review" > pr_descriptions/pr_${PR_NUMBER}_description.txt
-          echo "Generated on: $(date)" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
-          echo "-----------------------------------" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
-          echo "$COMMENT_BODY" >> pr_descriptions/pr_${PR_NUMBER}_description.txt
 
-      - name: Commit description file
+          # Fetch Qodo's comment body
+          COMMENT='${{ github.event.comment.body }}'
+
+          # Extract lines between "Description" and the next section
+          DESCRIPTION=$(echo "$COMMENT" | awk '/^[•\-] /{ found=1 } found && /^[•\-] /{ print } /^[^•\-]/ && found { exit }')
+
+          # Write to file
+          {
+            echo "PR #$PR_NUMBER - $PR_TITLE"
+            echo "Date: $(date)"
+            echo "========================================"
+            echo ""
+            echo "Walkthroughs - Description"
+            echo ""
+            gh api repos/${{ github.repository }}/issues/${PR_NUMBER}/comments \
+              --jq '.[] | select(.user.login | test("qodo|CodiumAI"; "i")) | .body' \
+              | awk '/Description/{found=1; next} found && /^[•*-] /{print} found && /^#{1,3} /{exit}'
+          } > pr_descriptions/pr_${PR_NUMBER}_description.txt
+
+      - name: Commit
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add pr_descriptions/
-          git diff --staged --quiet || git commit -m "Save Qodo review for PR #${{ github.event.issue.number }}"
+          git diff --staged --quiet || git commit -m "Save walkthrough description for PR #${{ github.event.issue.number }}"
           git push
